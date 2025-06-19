@@ -2,7 +2,7 @@
 set -euo pipefail
 
 UPSTREAM_URL=${1:-}
-OUT_FILE=${2:-${GITHUB_OUTPUT:-}}
+OUT_FILE=${2:-${GITHUB_OUTPUT:-download.out.txt}}
 
 # Download file and capture headers in a single request
 temp_header_file=$(mktemp)
@@ -37,10 +37,7 @@ if [[ -z "$version" ]]; then
   echo "::error::Version not recognised from filename: '$filename'" >&2
   exit 1
 fi
-if [[ -n "$OUT_FILE" ]]; then
-  echo "version=$version" >> "$OUT_FILE"
-else
-  echo "version=$version"
-fi
+
+echo "version=$version" >> "$OUT_FILE"
 
 echo "Downloaded: $filename" >&2

@@ -10,7 +10,7 @@ Automatically mirrors the latest **CodeSignTool** release published by [SSL.com]
 
 | Step                | File                                        | What it does                                                              |
 | ------------------- | ------------------------------------------- | ------------------------------------------------------------------------- |
-| **Header probe**    | `scripts/extract_header.sh`                 | Curls the upstream URL *headers only*; pulls out the filename and SemVer. |
+| **Download script** | `scripts/download.sh`                       | Downloads the upstream file and extracts filename and SemVer from headers. |
 | **Duplicate guard** | `scripts/check_release.sh`                  | Exits early if a release tag like `v1.2.3` already exists.                |
 | **Workflow**        | `.github/workflows/mirror_codesigntool.yml` | Ties everything together—scheduled run, download, tag & release.          |
 
@@ -24,7 +24,7 @@ Releases are tagged `v<major>.<minor>.<patch>` (e.g. `v1.3.2`) and titled `CodeS
 
 ```bash
 # Run header extraction locally
-bash scripts/extract_header.sh "https://www.ssl.com/download/codesigntool-for-linux-and-macos/"
+bash scripts/download.sh "https://www.ssl.com/download/codesigntool-for-linux-and-macos/"
 # → prints filename and version to STDOUT
 
 # Simulate duplicate‑release guard

@@ -19,8 +19,8 @@ jobs:
       - name: Inspect Content-Disposition
         id: hdr
         run: |
-          chmod +x scripts/extract_header.sh
-          scripts/extract_header.sh "$UPSTREAM_URL" "$GITHUB_OUTPUT"
+          chmod +x scripts/download.sh
+          scripts/download.sh "$UPSTREAM_URL" "$GITHUB_OUTPUT"
 
       - name: Check for existing GitHub release
         id: exists
