@@ -1,0 +1,50 @@
+name: Mirror CodeSignTool → GitHub Release
+
+on:
+  schedule:
+    - cron: '15 5 * * *'
+  workflow_dispatch:
+
+env:
+  UPSTREAM_URL: https://www.ssl.com/download/codesigntool-for-linux-and-macos/
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (so scripts are present)
+        uses: actions/checkout@v4
+
+      - name: Inspect Content-Disposition
+        id: hdr
+        run: |
+          chmod +x scripts/extract_header.sh
+          scripts/extract_header.sh "$UPSTREAM_URL" "$GITHUB_OUTPUT"
+
+      - name: Check for existing GitHub release
+        id: exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x scripts/check_release.sh
+          scripts/check_release.sh "${{ steps.hdr.outputs.version }}" "$GITHUB_OUTPUT"
+
+      - name: Nothing new – skip the rest
+        if: steps.exists.outputs.found == 'true'
+        run: echo "v${{ steps.hdr.outputs.version }} already published – stopping job."
+
+      - name: Download asset
+        if: steps.exists.outputs.found == 'false'
+        run: curl -sSLo "${{ steps.hdr.outputs.filename }}" "$UPSTREAM_URL"
+
+      - name: Create GitHub release
+        if: steps.exists.outputs.found == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ steps.hdr.outputs.version }}" \
+            --title  "CodeSignTool v${{ steps.hdr.outputs.version }}" \
+            --notes  "Automated mirror of SSL.com CodeSignTool build." \
+            --target ${{ github.sha }} \
+            "${{ steps.hdr.outputs.filename }}"
